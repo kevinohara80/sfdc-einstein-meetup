@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jsonwebtoken": "^7.4.1"
+    "jsonwebtoken": "^7.4.1",
+    "request-sync": "^1.0.0",
+    "sync-request": "^4.1.0"
   }
 }
