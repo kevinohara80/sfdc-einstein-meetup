@@ -1,0 +1,323 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Einstein Testing",
+		"_postman_id": "15462afe-4635-3430-0a08-34b3cc73bb39",
+		"description": "Commands for testing Einstein",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Einstein Root - GET",
+			"request": {
+				"url": "https://api.einstein.ai",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"kevinohara80+testuser2@gmail.com\",\n    \"role\": \"member\"\n}"
+				},
+				"description": "Just a GET request to the Einstein root"
+			},
+			"response": []
+		},
+		{
+			"name": "Einstein Token - POST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setGlobalVariable(\"access_token\", jsonData.access_token);",
+							"",
+							"tests['check that access token is set'] = !!postman.getGlobalVariable('access_token');"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"function base64url(source) {",
+							"  // Encode in classical base64",
+							"  encodedSource = CryptoJS.enc.Base64.stringify(source);",
+							"",
+							"  // Remove padding equal characters",
+							"  encodedSource = encodedSource.replace(/=+$/, '');",
+							"",
+							"  // Replace characters according to base64url specifications",
+							"  encodedSource = encodedSource.replace(/\\+/g, '-');",
+							"  encodedSource = encodedSource.replace(/\\//g, '_');",
+							"",
+							"  return encodedSource;",
+							"}",
+							"",
+							"function utf8parse(source) {",
+							"    return CryptoJS.enc.Utf8.parse(JSON.stringify(source))",
+							"}",
+							"",
+							"function hashKey(key) {",
+							"    ",
+							"}",
+							"",
+							"var header = {",
+							"    \"alg\": \"HS256\",",
+							"    \"typ\": \"jwt\"",
+							"}",
+							"",
+							"var data = {",
+							"    \"sub\": \"kevinohara80@gmail.com\",",
+							"    \"type\": \"JWT\"",
+							"}",
+							"",
+							"var secret = postman.getGlobalVariable('secret_key');",
+							"var encodedHeader = base64url(utf8parse(header));",
+							"var encodedData = base64url(utf8parse(data));",
+							"",
+							"var token = encodedHeader + '.' + encodedData;",
+							"",
+							"var signature = base64url(CryptoJS.HmacSHA256(token, secret));",
+							"",
+							"var assertion = token + '.' + signature;",
+							"",
+							"postman.setGlobalVariable('assertion', assertion);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://api.einstein.ai/v2/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "assertion",
+							"value": "{{assertion}}",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": "Requests a token from the einstein OAuth endpoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Einstein Datasets Get All - GET",
+			"request": {
+				"url": "https://api.einstein.ai/v2/vision/datasets",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Get all Einstein Data Sets"
+			},
+			"response": []
+		},
+		{
+			"name": "Language Community Predict Sentiment - POST",
+			"request": {
+				"url": "https://api.einstein.ai/v2/language/sentiment",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"document\": \"This is something great. I am pretty pumped for this!\",\n\t\"modelId\": \"CommunitySentiment\"\n}"
+				},
+				"description": "Run the Einstein predicion for Sentiment"
+			},
+			"response": []
+		},
+		{
+			"name": "Language Create Dataset - POST",
+			"request": {
+				"url": "https://api.einstein.ai/v2/language/datasets/upload/sync",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "data",
+							"description": "",
+							"type": "file",
+							"src": "case_routing_intent.tsv"
+						},
+						{
+							"key": "name",
+							"value": "case-routing-test-1",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "text-intent",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": "Create a dataset in einstein"
+			},
+			"response": []
+		},
+		{
+			"name": "Language Get All Datasets - GET",
+			"request": {
+				"url": "https://api.einstein.ai/v2/language/datasets",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Get all Einstein Vision Data Sets"
+			},
+			"response": []
+		},
+		{
+			"name": "Language Predict Intent - POST copy",
+			"request": {
+				"url": "https://api.einstein.ai/v2/language/sentiment",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"document\": \"This is something great. I am pretty pumped for this!\",\n\t\"modelId\": \"CommunitySentiment\"\n}"
+				},
+				"description": "Run the Einstein predicion for Sentiment"
+			},
+			"response": []
+		}
+	]
+}
