@@ -1,21 +1,32 @@
 <apex:page Controller="VisionController">
-  <apex:form >
-  <apex:pageBlock >
-      <apex:image url="http://metamind.io/images/generalimage.jpg">
-      </apex:image>
-      <br/>
-      <apex:repeat value="{!AccessToken}" var="accessToken">
-          Access Token:<apex:outputText value="{!accessToken}" /><br/>
-    </apex:repeat>
-      <br/>
-      <apex:repeat value="{!callVisionUrl}" var="prediction">
-          <apex:outputText value="{!prediction.label}" />:<apex:outputText value="{!prediction.probability}" /><br/>
-      </apex:repeat>
-  </apex:pageBlock>
-<!--  <apex:pageBlock > -->
-<!--      <apex:repeat value="{!callVisionContent}" var="prediction"> -->
-<!--          <apex:outputText value="{!prediction.label}" />:<apex:outputText value="{!prediction.probability}" /><br/> -->
-<!--    </apex:repeat> -->
-<!--  </apex:pageBlock> -->
-  </apex:form>
+  <apex:slds />
+  <div styleClass="slds-scope">
+    <apex:form >
+      <apex:pageBlock >
+        <apex:pageBlockSection>
+          <apex:pageBlockSectionItem>
+            <apex:image width="300" url="{!imageUrl}"></apex:image>
+          </apex:pageBlockSectionItem>
+          <apex:pageBlockSectionItem>
+            <apex:inputText style="width: 100%" value="{!imageUrl}" />
+          </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons>
+          <apex:commandButton action="{!predict}" value="Predict" />
+        </apex:pageBlockButtons>
+      </apex:pageBlock>
+      <apex:pageBlock title="Results">
+        <apex:dataTable value="{!predictions}" var="prediction" id="prediction-table">
+          <apex:column>
+            <apex:facet name="header">Label</apex:facet>
+            <apex:outputText value="{!prediction.label}" />
+          </apex:column>
+          <apex:column>
+            <apex:facet name="header">Probability</apex:facet>
+            <apex:outputText value="{!prediction.probability}" />
+          </apex:column>
+        </apex:dataTable>
+      </apex:pageBlock>
+    </apex:form>
+  </div>
 </apex:page>

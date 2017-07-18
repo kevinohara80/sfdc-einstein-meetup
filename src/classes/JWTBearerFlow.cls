@@ -21,6 +21,9 @@ public class JWTBearerFlow {
             break;
         }
       }
+    } else {
+      System.debug(System.LoggingLevel.ERROR, 'HTTP Status: ' + res.getStatusCode());
+      System.debug(System.LoggingLevel.ERROR, 'HTTP Body: ' + res.getBody());
     }
     return access_token;
   }
